@@ -98,7 +98,7 @@
               <div class="qr-section">
                 <h4>📱 二维码</h4>
                 <div class="qr-code" ref="qrCode"></div>
-                <button @click="downloadQRCode" class="btn btn-small" style="margin-top: 8px;">下载二维码</button>
+                <button @click="downloadQRCode" class="btn btn-small btn-download-qr">下载二维码</button>
               </div>
 
               <div class="stats">
@@ -582,6 +582,10 @@ function formatDate(dateString) {
   flex-direction: column;
 }
 
+.compact-card .form .btn {
+  margin-top: auto;
+}
+
 .compact-card h2 {
   color: var(--text-primary);
   font-size: 18px;
@@ -784,10 +788,12 @@ function formatDate(dateString) {
 }
 
 .stat-item.highlight {
-  background: #fef3c7;
+  background: transparent;
   padding: 10px;
   margin: 0 -12px;
   border-radius: 6px;
+  border: 2px solid #fbbf24;
+  border-left: 4px solid #f59e0b;
 }
 
 .warning-box {
@@ -866,6 +872,13 @@ function formatDate(dateString) {
 .btn-small {
   padding: 6px 12px;
   font-size: 13px;
+}
+
+.btn-download-qr {
+  margin-top: 10px;
+  width: 100%;
+  background: var(--primary);
+  color: white;
 }
 
 /* Footer */
