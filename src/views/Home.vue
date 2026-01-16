@@ -144,14 +144,41 @@ async function createShortUrl() {
 
 function copyUrl() {
   if (urlInput.value) {
-    navigator.clipboard.writeText(urlInput.value.value).then(() => {
-      toastMessage.value = '短链接已复制到剪贴板'
-      toastType.value = 'success'
-      copied.value = true
-      setTimeout(() => {
-        copied.value = false
-      }, 2000)
-    })
+    // Try modern clipboard API first
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(urlInput.value.value).then(() => {
+        toastMessage.value = '✅ 短链接已复制到剪贴板'
+        toastType.value = 'success'
+        copied.value = true
+        setTimeout(() => {
+          copied.value = false
+          toastMessage.value = ''
+        }, 2000)
+      }).catch(() => {
+        // Fallback to old method
+        fallbackCopy()
+      })
+    } else {
+      // Browser doesn't support clipboard API
+      fallbackCopy()
+    }
+  }
+}
+
+function fallbackCopy() {
+  try {
+    urlInput.value.select()
+    document.execCommand('copy')
+    toastMessage.value = '✅ 短链接已复制到剪贴板'
+    toastType.value = 'success'
+    copied.value = true
+    setTimeout(() => {
+      copied.value = false
+      toastMessage.value = ''
+    }, 2000)
+  } catch (e) {
+    toastMessage.value = '❌ 复制失败，请手动复制'
+    toastType.value = 'error'
   }
 }
 
