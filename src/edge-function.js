@@ -383,7 +383,7 @@ async function handleRequest(request) {
           return new Response(null, {
             status: 302,
             headers: {
-              'Location': `/#/verify/${alias}`,
+              'Location': `${url.origin}/#/verify/${alias}`,
               'Cache-Control': 'no-cache'
             }
           });
