@@ -209,7 +209,7 @@ async function handleRequest(request) {
   }
 
   // Handle short URL redirects
-  if (path.length > 1 && !path.startsWith('/api') && !path.startsWith('/assets')) {
+  if (path.length > 1 && !path.startsWith('/api') && !path.startsWith('/assets') && path !== '/admin') {
     const alias = path.substring(1);
 
     try {
