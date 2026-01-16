@@ -1,5 +1,6 @@
 <template>
   <div class="home">
+    <Toast :message="toastMessage" :type="toastType" />
     <div class="container">
       <header class="header">
         <h1 class="title">⚡ ESA 短链接服务</h1>
@@ -93,6 +94,7 @@
 
 <script setup>
 import { ref } from 'vue'
+import Toast from '../components/Toast.vue'
 
 const longUrl = ref('')
 const customAlias = ref('')
@@ -102,6 +104,8 @@ const error = ref('')
 const copied = ref(false)
 const urlInput = ref(null)
 const qrCode = ref(null)
+const toastMessage = ref('')
+const toastType = ref('success')
 
 async function createShortUrl() {
   loading.value = true
@@ -140,12 +144,14 @@ async function createShortUrl() {
 
 function copyUrl() {
   if (urlInput.value) {
-    urlInput.value.select()
-    document.execCommand('copy')
-    copied.value = true
-    setTimeout(() => {
-      copied.value = false
-    }, 2000)
+    navigator.clipboard.writeText(urlInput.value.value).then(() => {
+      toastMessage.value = '短链接已复制到剪贴板'
+      toastType.value = 'success'
+      copied.value = true
+      setTimeout(() => {
+        copied.value = false
+      }, 2000)
+    })
   }
 }
 

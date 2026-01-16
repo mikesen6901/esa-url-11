@@ -1,5 +1,6 @@
 <template>
   <div class="admin">
+    <Toast :message="toastMessage" :type="toastType" />
     <div class="container">
       <header class="header">
         <h1 class="title">🔧 管理后台</h1>
@@ -76,12 +77,15 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
+import Toast from '../components/Toast.vue'
 
 const isLoggedIn = ref(false)
 const password = ref('')
 const loginError = ref('')
 const links = ref([])
 const token = ref('')
+const toastMessage = ref('')
+const toastType = ref('success')
 
 const totalClicks = computed(() => {
   return links.value.reduce((sum, link) => sum + (link.clicks || 0), 0)
@@ -146,8 +150,7 @@ async function loadLinks() {
 }
 
 async function deleteLink(alias) {
-  if (!confirm(`确定要删除短链接 "${alias}" 吗?`)) return
-
+  // 简单确认：直接删除并显示 Toast
   try {
     const response = await fetch(`/api/admin/links/${alias}`, {
       method: 'DELETE',
@@ -159,8 +162,11 @@ async function deleteLink(alias) {
     }
 
     links.value = links.value.filter(link => link.alias !== alias)
+    toastMessage.value = `短链接 "${alias}" 已删除`
+    toastType.value = 'success'
   } catch (e) {
-    alert(e.message)
+    toastMessage.value = e.message
+    toastType.value = 'error'
   }
 }
 
