@@ -309,9 +309,18 @@ async function createShortUrl() {
 function generateQRCode(url) {
   if (!qrCode.value) return
 
-  // Simple QR code generation using API - smaller size
   const qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=${encodeURIComponent(url)}`
-  qrCode.value.innerHTML = `<img src="${qrApiUrl}" alt="QR Code" />`
+
+  qrCode.value.style.opacity = '0'
+
+  const img = new Image()
+  img.onload = () => {
+    qrCode.value.innerHTML = ''
+    qrCode.value.appendChild(img)
+    qrCode.value.style.opacity = '1'
+  }
+  img.src = qrApiUrl
+  img.alt = 'QR Code'
 }
 
 function downloadQRCode() {
@@ -782,15 +791,6 @@ function formatDate(dateString) {
   color: var(--text-primary);
   word-break: break-all;
   font-size: 13px;
-}
-
-.stat-item.highlight {
-  background: transparent;
-  padding: 10px;
-  margin: 0 -12px;
-  border-radius: 6px;
-  border: 2px solid #fbbf24;
-  border-left: 4px solid #f59e0b;
 }
 
 .warning-box {
