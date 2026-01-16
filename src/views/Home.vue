@@ -171,33 +171,35 @@ function generateQRCode(url) {
 }
 
 .title {
-  font-size: 48px;
-  font-weight: 800;
-  color: white;
-  margin-bottom: 10px;
-  text-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  font-size: 42px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 12px;
+  letter-spacing: -0.5px;
 }
 
 .subtitle {
-  font-size: 18px;
-  color: rgba(255, 255, 255, 0.9);
-  margin-bottom: 20px;
+  font-size: 17px;
+  color: var(--text-secondary);
+  margin-bottom: 24px;
 }
 
 .admin-link {
   display: inline-block;
-  padding: 10px 20px;
-  background: rgba(255, 255, 255, 0.2);
-  color: white;
+  padding: 8px 16px;
+  background: var(--card-bg);
+  color: var(--text-secondary);
   text-decoration: none;
-  border-radius: 10px;
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  transition: all 0.3s;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  transition: all 0.2s;
+  font-size: 14px;
 }
 
 .admin-link:hover {
-  background: rgba(255, 255, 255, 0.3);
-  transform: translateY(-2px);
+  color: var(--primary);
+  border-color: var(--primary);
+  transform: translateY(-1px);
 }
 
 .main-card {
@@ -206,9 +208,10 @@ function generateQRCode(url) {
 }
 
 .main-card h2 {
-  color: white;
-  font-size: 28px;
-  margin-bottom: 30px;
+  color: var(--text-primary);
+  font-size: 24px;
+  font-weight: 600;
+  margin-bottom: 24px;
 }
 
 .form-group {
@@ -217,28 +220,30 @@ function generateQRCode(url) {
 
 .form-group label {
   display: block;
-  color: white;
-  font-weight: 600;
+  color: var(--text-primary);
+  font-weight: 500;
   margin-bottom: 8px;
+  font-size: 14px;
 }
 
 .form-group small {
   display: block;
-  color: rgba(255, 255, 255, 0.7);
+  color: var(--text-secondary);
   font-size: 13px;
-  margin-top: 5px;
+  margin-top: 6px;
 }
 
 .result {
-  margin-top: 30px;
-  padding-top: 30px;
-  border-top: 1px solid rgba(255, 255, 255, 0.2);
+  margin-top: 32px;
+  padding-top: 32px;
+  border-top: 1px solid var(--border);
 }
 
 .result h3 {
   color: var(--success);
-  font-size: 24px;
-  margin-bottom: 20px;
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 16px;
 }
 
 .short-url-box {
@@ -265,8 +270,10 @@ function generateQRCode(url) {
 }
 
 .qr-section h4 {
-  color: white;
-  margin-bottom: 15px;
+  color: var(--text-primary);
+  font-weight: 600;
+  font-size: 16px;
+  margin-bottom: 16px;
 }
 
 .qr-code {
@@ -282,21 +289,22 @@ function generateQRCode(url) {
 }
 
 .qr-hint {
-  color: rgba(255, 255, 255, 0.8);
-  font-size: 14px;
+  color: var(--text-secondary);
+  font-size: 13px;
 }
 
 .stats {
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 10px;
-  padding: 20px;
+  background: #f8fafc;
+  border-radius: 8px;
+  padding: 16px;
+  border: 1px solid var(--border);
 }
 
 .stat-item {
   display: flex;
   justify-content: space-between;
-  padding: 10px 0;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border);
 }
 
 .stat-item:last-child {
@@ -304,22 +312,25 @@ function generateQRCode(url) {
 }
 
 .stat-label {
-  color: rgba(255, 255, 255, 0.8);
-  font-weight: 600;
+  color: var(--text-secondary);
+  font-weight: 500;
+  font-size: 14px;
 }
 
 .stat-value {
-  color: white;
+  color: var(--text-primary);
   word-break: break-all;
+  font-size: 14px;
 }
 
 .error-message {
-  margin-top: 20px;
-  padding: 15px;
-  background: rgba(239, 68, 68, 0.2);
-  border: 1px solid var(--danger);
-  border-radius: 10px;
-  color: white;
+  margin-top: 16px;
+  padding: 12px 16px;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 8px;
+  color: #991b1b;
+  font-size: 14px;
 }
 
 .features {
@@ -341,13 +352,14 @@ function generateQRCode(url) {
 }
 
 .feature-card h3 {
-  color: white;
-  font-size: 20px;
-  margin-bottom: 10px;
+  color: var(--text-primary);
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 8px;
 }
 
 .feature-card p {
-  color: rgba(255, 255, 255, 0.8);
+  color: var(--text-secondary);
   font-size: 14px;
   line-height: 1.6;
 }
