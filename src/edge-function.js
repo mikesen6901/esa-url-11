@@ -253,8 +253,9 @@ async function handleRequest(request) {
     }
   }
 
-  // Return 404 for unknown routes
-  return new Response('Not Found', { status: 404 });
+  // Don't return 404 - let ESA's SPA fallback handle unmatched routes
+  // When notFoundStrategy: "singlePageApplication" is configured,
+  // ESA will serve index.html for navigation requests
 }
 
 export default {
