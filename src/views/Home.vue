@@ -462,14 +462,33 @@ function copyToClipboard(text) {
         toastMessage.value = ''
       }, 2000)
     }).catch(() => {
-      toastMessage.value = '❌ 复制失败'
-      toastType.value = 'error'
-      setTimeout(() => {
-        toastMessage.value = ''
-      }, 2000)
+      // Fallback to execCommand if clipboard API fails
+      fallbackCopyText(text)
     })
   } else {
-    toastMessage.value = '❌ 浏览器不支持复制功能'
+    // Browser doesn't support clipboard API, use fallback
+    fallbackCopyText(text)
+  }
+}
+
+function fallbackCopyText(text) {
+  try {
+    const textarea = document.createElement('textarea')
+    textarea.value = text
+    textarea.style.position = 'fixed'
+    textarea.style.opacity = '0'
+    document.body.appendChild(textarea)
+    textarea.select()
+    document.execCommand('copy')
+    document.body.removeChild(textarea)
+
+    toastMessage.value = '✅ 已复制到剪贴板'
+    toastType.value = 'success'
+    setTimeout(() => {
+      toastMessage.value = ''
+    }, 2000)
+  } catch (e) {
+    toastMessage.value = '❌ 复制失败，请手动复制'
     toastType.value = 'error'
     setTimeout(() => {
       toastMessage.value = ''
