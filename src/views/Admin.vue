@@ -258,7 +258,7 @@ function formatDate(dateString) {
 }
 
 .stat-box {
-  background: #f8fafc;
+  background: #f1f5f9;
   padding: 25px;
   border-radius: 12px;
   text-align: center;
