@@ -543,16 +543,19 @@ function formatDate(dateString) {
   grid-template-columns: 1fr 400px;
   gap: 20px;
   margin-bottom: 30px;
+  align-items: stretch;
 }
 
 .side-panel {
   display: flex;
   flex-direction: column;
   gap: 20px;
+  height: 100%;
 }
 
 .compact-card {
-  height: fit-content;
+  flex: 1;
+  min-height: 0;
 }
 
 .compact-card h2 {
