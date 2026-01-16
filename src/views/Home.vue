@@ -748,7 +748,7 @@ function formatDate(dateString) {
   display: grid;
   grid-template-columns: auto 1fr;
   gap: 20px;
-  align-items: start;
+  align-items: center;
 }
 
 .qr-section {
