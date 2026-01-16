@@ -7,220 +7,219 @@
         <p class="subtitle">基于阿里云边缘计算的快速短链接生成服务</p>
       </header>
 
-      <div class="glass-card main-card">
-        <h2>🔗 创建短链接</h2>
-        <form @submit.prevent="createShortUrl" class="form">
-          <div class="form-group">
-            <label>原始链接</label>
-            <input
-              v-model="longUrl"
-              type="url"
-              placeholder="https://example.com/very/long/url"
-              required
-            />
-          </div>
-
-          <div class="form-group">
-            <label>自定义短码 (可选)</label>
-            <input
-              v-model="customAlias"
-              type="text"
-              placeholder="my-link"
-              pattern="[a-zA-Z0-9-_]+"
-            />
-            <small>只能包含字母、数字、横线和下划线</small>
-          </div>
-
-          <div class="form-group">
-            <label>过期时间</label>
-            <select v-model="expiryTime" class="expiry-select">
-              <option value="0">永久有效</option>
-              <option value="3600">1小时后过期</option>
-              <option value="86400">1天后过期</option>
-              <option value="604800">7天后过期</option>
-              <option value="2592000">30天后过期</option>
-            </select>
-            <small>过期后短链接将自动失效</small>
-          </div>
-
-          <button type="submit" class="btn btn-primary" :disabled="loading">
-            {{ loading ? '生成中...' : '生成短链接' }}
-          </button>
-        </form>
-
-        <div v-if="result" class="result">
-          <h3>✅ 短链接已生成</h3>
-          <div class="short-url-box">
-            <input :value="result.shortUrl" readonly class="short-url-input" ref="urlInput" />
-            <button @click="copyUrl" class="btn btn-copy">{{ copied ? '已复制' : '复制' }}</button>
-          </div>
-
-          <div class="qr-section">
-            <h4>📱 二维码</h4>
-            <div class="qr-code" ref="qrCode"></div>
-            <p class="qr-hint">扫描二维码访问链接</p>
-          </div>
-
-          <div class="stats">
-            <div class="stat-item">
-              <span class="stat-label">原始链接:</span>
-              <span class="stat-value">{{ result.longUrl }}</span>
-            </div>
-            <div class="stat-item">
-              <span class="stat-label">短码:</span>
-              <span class="stat-value">{{ result.alias }}</span>
-            </div>
-            <div class="stat-item">
-              <span class="stat-label">点击次数:</span>
-              <span class="stat-value">0</span>
-            </div>
-            <div class="stat-item highlight">
-              <span class="stat-label">🔑 管理密钥:</span>
-              <span class="stat-value">{{ result.editToken }}</span>
+      <!-- 功能说明卡片 -->
+      <div class="info-card glass-card">
+        <h3>💡 功能特色</h3>
+        <div class="info-grid">
+          <div class="info-item">
+            <span class="info-icon">🔗</span>
+            <div>
+              <strong>短链接生成</strong>
+              <p>快速将长URL转换为简短易记的短链接</p>
             </div>
           </div>
-          <div class="warning-box">
-            ⚠️ 请妥善保管管理密钥，使用它可以修改短链接的目标URL
+          <div class="info-item">
+            <span class="info-icon">🔄</span>
+            <div>
+              <strong>活码功能</strong>
+              <p>使用管理密钥随时修改短链接的目标URL，无需重新生成</p>
+            </div>
           </div>
-        </div>
-
-        <div v-if="error" class="error-message">
-          ❌ {{ error }}
+          <div class="info-item">
+            <span class="info-icon">⏰</span>
+            <div>
+              <strong>过期时间</strong>
+              <p>设置链接有效期，过期后自动失效</p>
+            </div>
+          </div>
+          <div class="info-item">
+            <span class="info-icon">📊</span>
+            <div>
+              <strong>访问统计</strong>
+              <p>实时查看短链接的点击次数和详细信息</p>
+            </div>
+          </div>
         </div>
       </div>
 
-      <div class="glass-card main-card">
-        <h2>📊 查询短链接统计</h2>
-        <form @submit.prevent="queryStats" class="form">
-          <div class="form-group">
-            <label>短链接或短码</label>
-            <input
-              v-model="queryAlias"
-              type="text"
-              placeholder="输入短码，例如: abc123"
-              required
-            />
-            <small>输入短码或完整短链接查看统计信息</small>
+      <!-- 主操作区域 - 两列布局 -->
+      <div class="main-grid">
+        <!-- 左侧：创建短链接 -->
+        <div class="glass-card">
+          <h2>🔗 创建短链接</h2>
+          <form @submit.prevent="createShortUrl" class="form">
+            <div class="form-row">
+              <div class="form-group">
+                <label>原始链接</label>
+                <input
+                  v-model="longUrl"
+                  type="url"
+                  placeholder="https://example.com/very/long/url"
+                  required
+                />
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label>自定义短码 (可选)</label>
+                <input
+                  v-model="customAlias"
+                  type="text"
+                  placeholder="my-link"
+                  pattern="[a-zA-Z0-9-_]+"
+                />
+              </div>
+              <div class="form-group">
+                <label>过期时间</label>
+                <select v-model="expiryTime" class="expiry-select">
+                  <option value="0">永久有效</option>
+                  <option value="3600">1小时</option>
+                  <option value="86400">1天</option>
+                  <option value="604800">7天</option>
+                  <option value="2592000">30天</option>
+                </select>
+              </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary" :disabled="loading">
+              {{ loading ? '生成中...' : '生成短链接' }}
+            </button>
+          </form>
+
+          <div v-if="result" class="result">
+            <h3>✅ 短链接已生成</h3>
+            <div class="short-url-box">
+              <input :value="result.shortUrl" readonly class="short-url-input" />
+              <button @click="copyToClipboard(result.shortUrl)" class="btn btn-copy">复制</button>
+            </div>
+
+            <div class="result-grid">
+              <div class="qr-section">
+                <h4>📱 二维码</h4>
+                <div class="qr-code" ref="qrCode"></div>
+              </div>
+
+              <div class="stats">
+                <div class="stat-item">
+                  <span class="stat-label">短码:</span>
+                  <span class="stat-value">{{ result.alias }}</span>
+                </div>
+                <div class="stat-item highlight">
+                  <span class="stat-label">🔑 管理密钥:</span>
+                  <span class="stat-value">{{ result.editToken }}</span>
+                </div>
+                <div class="warning-box">
+                  ⚠️ 保管好管理密钥，可用于修改目标URL（活码功能）
+                </div>
+              </div>
+            </div>
           </div>
 
-          <button type="submit" class="btn btn-primary" :disabled="queryLoading">
-            {{ queryLoading ? '查询中...' : '查询统计' }}
-          </button>
-        </form>
-
-        <div v-if="statsResult" class="result">
-          <h3>📈 统计信息</h3>
-          <div class="stats">
-            <div class="stat-item">
-              <span class="stat-label">短链接:</span>
-              <span class="stat-value">{{ statsResult.shortUrl }}</span>
-            </div>
-            <div class="stat-item">
-              <span class="stat-label">原始链接:</span>
-              <span class="stat-value">{{ statsResult.longUrl }}</span>
-            </div>
-            <div class="stat-item">
-              <span class="stat-label">点击次数:</span>
-              <span class="stat-value">{{ statsResult.clicks }}</span>
-            </div>
-            <div class="stat-item">
-              <span class="stat-label">创建时间:</span>
-              <span class="stat-value">{{ formatDate(statsResult.createdAt) }}</span>
-            </div>
-            <div class="stat-item">
-              <span class="stat-label">过期时间:</span>
-              <span class="stat-value">{{ statsResult.expiresAt ? formatDate(statsResult.expiresAt) : '永久有效' }}</span>
-            </div>
+          <div v-if="error" class="error-message">
+            ❌ {{ error }}
           </div>
         </div>
 
-        <div v-if="queryError" class="error-message">
-          ❌ {{ queryError }}
+        <!-- 右侧：查询和编辑 -->
+        <div class="side-panel">
+          <!-- 查询统计 -->
+          <div class="glass-card compact-card">
+            <h2>📊 查询统计</h2>
+            <form @submit.prevent="queryStats" class="form">
+              <div class="form-group">
+                <input
+                  v-model="queryAlias"
+                  type="text"
+                  placeholder="输入短码查询"
+                  required
+                />
+              </div>
+              <button type="submit" class="btn btn-primary btn-small" :disabled="queryLoading">
+                {{ queryLoading ? '查询中...' : '查询' }}
+              </button>
+            </form>
+
+            <div v-if="statsResult" class="result">
+              <div class="stats compact">
+                <div class="stat-item">
+                  <span class="stat-label">点击:</span>
+                  <span class="stat-value">{{ statsResult.clicks }}</span>
+                </div>
+                <div class="stat-item">
+                  <span class="stat-label">创建:</span>
+                  <span class="stat-value">{{ formatDate(statsResult.createdAt) }}</span>
+                </div>
+                <div class="stat-item">
+                  <span class="stat-label">过期:</span>
+                  <span class="stat-value">{{ statsResult.expiresAt ? formatDate(statsResult.expiresAt) : '永久' }}</span>
+                </div>
+              </div>
+            </div>
+
+            <div v-if="queryError" class="error-message">
+              ❌ {{ queryError }}
+            </div>
+          </div>
+
+          <!-- 编辑短链接 -->
+          <div class="glass-card compact-card">
+            <h2>✏️ 编辑短链接</h2>
+            <form @submit.prevent="updateShortUrl" class="form">
+              <div class="form-group">
+                <input
+                  v-model="editAlias"
+                  type="text"
+                  placeholder="短码"
+                  required
+                />
+              </div>
+              <div class="form-group">
+                <input
+                  v-model="editLongUrl"
+                  type="url"
+                  placeholder="新的目标URL"
+                  required
+                />
+              </div>
+              <div class="form-group">
+                <input
+                  v-model="editToken"
+                  type="text"
+                  placeholder="管理密钥"
+                  required
+                />
+              </div>
+              <button type="submit" class="btn btn-primary btn-small" :disabled="editLoading">
+                {{ editLoading ? '更新中...' : '更新' }}
+              </button>
+            </form>
+
+            <div v-if="editSuccess" class="success-message">
+              ✅ 更新成功！
+            </div>
+
+            <div v-if="editError" class="error-message">
+              ❌ {{ editError }}
+            </div>
+          </div>
         </div>
       </div>
 
-      <div class="glass-card main-card">
-        <h2>✏️ 编辑短链接</h2>
-        <form @submit.prevent="updateShortUrl" class="form">
-          <div class="form-group">
-            <label>短码</label>
-            <input
-              v-model="editAlias"
-              type="text"
-              placeholder="输入要编辑的短码"
-              required
-            />
-          </div>
-
-          <div class="form-group">
-            <label>新的目标URL</label>
-            <input
-              v-model="editLongUrl"
-              type="url"
-              placeholder="https://example.com/new-url"
-              required
-            />
-          </div>
-
-          <div class="form-group">
-            <label>管理密钥</label>
-            <input
-              v-model="editToken"
-              type="text"
-              placeholder="输入管理密钥"
-              required
-            />
-            <small>创建短链接时获得的管理密钥</small>
-          </div>
-
-          <button type="submit" class="btn btn-primary" :disabled="editLoading">
-            {{ editLoading ? '更新中...' : '更新短链接' }}
-          </button>
-        </form>
-
-        <div v-if="editSuccess" class="success-message">
-          ✅ 短链接已成功更新！
-        </div>
-
-        <div v-if="editError" class="error-message">
-          ❌ {{ editError }}
-        </div>
-      </div>
-
-      <div v-if="recentLinks.length > 0" class="glass-card main-card">
+      <!-- 最近创建 -->
+      <div v-if="recentLinks.length > 0" class="glass-card">
         <h2>📋 最近创建</h2>
         <div class="recent-links">
           <div v-for="link in recentLinks" :key="link.alias" class="recent-link-item">
             <div class="recent-link-info">
               <div class="recent-link-url">{{ link.shortUrl }}</div>
-              <div class="recent-link-target">→ {{ link.longUrl }}</div>
               <div class="recent-link-meta">
                 <span>{{ formatDate(link.createdAt) }}</span>
                 <span v-if="link.expiresAt"> | 过期: {{ formatDate(link.expiresAt) }}</span>
               </div>
             </div>
-            <div class="recent-link-actions">
-              <button @click="copyToClipboard(link.shortUrl)" class="btn btn-small">复制</button>
-            </div>
+            <button @click="copyToClipboard(link.shortUrl)" class="btn btn-small">复制</button>
           </div>
-        </div>
-      </div>
-
-      <div class="features">
-        <div class="feature-card glass-card">
-          <div class="feature-icon">⚡</div>
-          <h3>边缘加速</h3>
-          <p>基于阿里云ESA边缘节点，全球访问超快响应</p>
-        </div>
-        <div class="feature-card glass-card">
-          <div class="feature-icon">📊</div>
-          <h3>实时统计</h3>
-          <p>实时追踪点击数据，了解链接访问情况</p>
-        </div>
-        <div class="feature-card glass-card">
-          <div class="feature-icon">🔒</div>
-          <h3>安全可靠</h3>
-          <p>ESA边缘安全加速提供全方位保护</p>
         </div>
       </div>
     </div>
@@ -237,8 +236,6 @@ const expiryTime = ref('0')
 const loading = ref(false)
 const result = ref(null)
 const error = ref('')
-const copied = ref(false)
-const urlInput = ref(null)
 const qrCode = ref(null)
 const toastMessage = ref('')
 const toastType = ref('success')
@@ -291,46 +288,6 @@ async function createShortUrl() {
     error.value = e.message
   } finally {
     loading.value = false
-  }
-}
-
-function copyUrl() {
-  if (urlInput.value) {
-    // Try modern clipboard API first
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(urlInput.value.value).then(() => {
-        toastMessage.value = '✅ 短链接已复制到剪贴板'
-        toastType.value = 'success'
-        copied.value = true
-        setTimeout(() => {
-          copied.value = false
-          toastMessage.value = ''
-        }, 2000)
-      }).catch(() => {
-        // Fallback to old method
-        fallbackCopy()
-      })
-    } else {
-      // Browser doesn't support clipboard API
-      fallbackCopy()
-    }
-  }
-}
-
-function fallbackCopy() {
-  try {
-    urlInput.value.select()
-    document.execCommand('copy')
-    toastMessage.value = '✅ 短链接已复制到剪贴板'
-    toastType.value = 'success'
-    copied.value = true
-    setTimeout(() => {
-      copied.value = false
-      toastMessage.value = ''
-    }, 2000)
-  } catch (e) {
-    toastMessage.value = '❌ 复制失败，请手动复制'
-    toastType.value = 'error'
   }
 }
 
@@ -516,8 +473,7 @@ function formatDate(dateString) {
 
 .header {
   text-align: center;
-  margin-bottom: 50px;
-  position: relative;
+  margin-bottom: 40px;
 }
 
 .title {
@@ -531,7 +487,93 @@ function formatDate(dateString) {
 .subtitle {
   font-size: 17px;
   color: var(--text-secondary);
-  margin-bottom: 24px;
+}
+
+/* 功能说明卡片 */
+.info-card {
+  margin-bottom: 30px;
+}
+
+.info-card h3 {
+  color: var(--text-primary);
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 20px;
+}
+
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 20px;
+}
+
+.info-item {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.info-icon {
+  font-size: 28px;
+  flex-shrink: 0;
+}
+
+.info-item strong {
+  display: block;
+  color: var(--text-primary);
+  font-size: 15px;
+  margin-bottom: 4px;
+}
+
+.info-item p {
+  color: var(--text-secondary);
+  font-size: 13px;
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* 主网格布局 */
+.main-grid {
+  display: grid;
+  grid-template-columns: 1fr 400px;
+  gap: 20px;
+  margin-bottom: 30px;
+}
+
+.side-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.compact-card {
+  height: fit-content;
+}
+
+.compact-card h2 {
+  color: var(--text-primary);
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 16px;
+}
+
+.glass-card h2 {
+  color: var(--text-primary);
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 20px;
+}
+
+/* 表单样式 */
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.form-row:has(.form-group:only-child) {
+  grid-template-columns: 1fr;
 }
 
 .admin-link {
@@ -565,7 +607,7 @@ function formatDate(dateString) {
 }
 
 .form-group {
-  margin-bottom: 20px;
+  margin-bottom: 0;
 }
 
 .form-group label {
@@ -602,9 +644,7 @@ function formatDate(dateString) {
 }
 
 .result {
-  margin-top: 32px;
-  padding-top: 32px;
-  border-top: 1px solid var(--border);
+  margin-top: 24px;
 }
 
 .result h3 {
@@ -617,7 +657,7 @@ function formatDate(dateString) {
 .short-url-box {
   display: flex;
   gap: 10px;
-  margin-bottom: 30px;
+  margin-bottom: 20px;
 }
 
 .short-url-input {
@@ -656,16 +696,15 @@ function formatDate(dateString) {
   display: block;
 }
 
-.qr-hint {
-  color: var(--text-secondary);
-  font-size: 13px;
-}
-
 .stats {
   background: #f8fafc;
   border-radius: 8px;
   padding: 16px;
   border: 1px solid var(--border);
+}
+
+.stats.compact {
+  padding: 12px;
 }
 
 .stat-item {
@@ -762,15 +801,7 @@ function formatDate(dateString) {
   color: var(--primary);
   font-size: 15px;
   margin-bottom: 4px;
-}
-
-.recent-link-target {
-  color: var(--text-secondary);
-  font-size: 13px;
-  margin-bottom: 6px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  word-break: break-all;
 }
 
 .recent-link-meta {
@@ -778,50 +809,41 @@ function formatDate(dateString) {
   font-size: 12px;
 }
 
-.recent-link-actions {
-  display: flex;
-  gap: 8px;
-}
-
 .btn-small {
   padding: 6px 12px;
   font-size: 13px;
 }
 
-.features {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 20px;
-  max-width: 1000px;
-  margin: 0 auto;
-}
+/* 响应式设计 */
+@media (max-width: 1024px) {
+  .main-grid {
+    grid-template-columns: 1fr;
+  }
 
-.feature-card {
-  text-align: center;
-  padding: 30px 20px;
-}
-
-.feature-icon {
-  font-size: 48px;
-  margin-bottom: 15px;
-}
-
-.feature-card h3 {
-  color: var(--text-primary);
-  font-size: 18px;
-  font-weight: 600;
-  margin-bottom: 8px;
-}
-
-.feature-card p {
-  color: var(--text-secondary);
-  font-size: 14px;
-  line-height: 1.6;
+  .side-panel {
+    flex-direction: row;
+  }
 }
 
 @media (max-width: 768px) {
   .title {
     font-size: 36px;
+  }
+
+  .info-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+
+  .side-panel {
+    flex-direction: column;
+  }
+
+  .result-grid {
+    grid-template-columns: 1fr;
   }
 
   .short-url-box {
