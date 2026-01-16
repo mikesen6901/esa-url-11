@@ -187,6 +187,25 @@
         </div>
       </div>
 
+      <div v-if="recentLinks.length > 0" class="glass-card main-card">
+        <h2>📋 最近创建</h2>
+        <div class="recent-links">
+          <div v-for="link in recentLinks" :key="link.alias" class="recent-link-item">
+            <div class="recent-link-info">
+              <div class="recent-link-url">{{ link.shortUrl }}</div>
+              <div class="recent-link-target">→ {{ link.longUrl }}</div>
+              <div class="recent-link-meta">
+                <span>{{ formatDate(link.createdAt) }}</span>
+                <span v-if="link.expiresAt"> | 过期: {{ formatDate(link.expiresAt) }}</span>
+              </div>
+            </div>
+            <div class="recent-link-actions">
+              <button @click="copyToClipboard(link.shortUrl)" class="btn btn-small">复制</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div class="features">
         <div class="feature-card glass-card">
           <div class="feature-icon">⚡</div>
@@ -259,6 +278,9 @@ async function createShortUrl() {
     }
 
     result.value = data
+
+    // Save to localStorage
+    saveToRecentLinks(data)
 
     // Generate QR code
     setTimeout(() => {
@@ -389,6 +411,60 @@ async function updateShortUrl() {
     editError.value = '更新失败，请检查网络连接'
   } finally {
     editLoading.value = false
+  }
+}
+
+// localStorage management functions
+const RECENT_LINKS_KEY = 'esa_recent_links'
+const MAX_RECENT_LINKS = 10
+
+function saveToRecentLinks(linkData) {
+  try {
+    const recentLinks = getRecentLinks()
+    const newLink = {
+      ...linkData,
+      createdAt: new Date().toISOString()
+    }
+
+    // Add to beginning of array
+    recentLinks.unshift(newLink)
+
+    // Keep only the most recent links
+    const trimmedLinks = recentLinks.slice(0, MAX_RECENT_LINKS)
+
+    localStorage.setItem(RECENT_LINKS_KEY, JSON.stringify(trimmedLinks))
+
+    // Update reactive state
+    recentLinks.value = trimmedLinks
+  } catch (e) {
+    console.error('Failed to save to localStorage:', e)
+  }
+}
+
+function getRecentLinks() {
+  try {
+    const stored = localStorage.getItem(RECENT_LINKS_KEY)
+    return stored ? JSON.parse(stored) : []
+  } catch (e) {
+    console.error('Failed to load from localStorage:', e)
+    return []
+  }
+}
+
+const recentLinks = ref(getRecentLinks())
+
+function copyToClipboard(text) {
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(() => {
+      toastMessage.value = '✅ 已复制到剪贴板'
+      toastType.value = 'success'
+      setTimeout(() => {
+        toastMessage.value = ''
+      }, 2000)
+    }).catch(() => {
+      toastMessage.value = '❌ 复制失败'
+      toastType.value = 'error'
+    })
   }
 }
 
@@ -624,6 +700,64 @@ function formatDate(dateString) {
   color: #166534;
   font-size: 14px;
   font-weight: 500;
+}
+
+.recent-links {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.recent-link-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px;
+  background: #f8fafc;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  transition: all 0.2s;
+}
+
+.recent-link-item:hover {
+  border-color: var(--primary);
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.1);
+}
+
+.recent-link-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.recent-link-url {
+  font-weight: 600;
+  color: var(--primary);
+  font-size: 15px;
+  margin-bottom: 4px;
+}
+
+.recent-link-target {
+  color: var(--text-secondary);
+  font-size: 13px;
+  margin-bottom: 6px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.recent-link-meta {
+  color: var(--text-secondary);
+  font-size: 12px;
+}
+
+.recent-link-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.btn-small {
+  padding: 6px 12px;
+  font-size: 13px;
 }
 
 .features {
