@@ -412,7 +412,7 @@ async function updateShortUrl() {
 
 // localStorage management functions
 const RECENT_LINKS_KEY = 'esa_recent_links'
-const MAX_RECENT_LINKS = 10
+const MAX_RECENT_LINKS = 5
 
 function saveToRecentLinks(linkData) {
   try {
@@ -581,16 +581,20 @@ function formatDate(dateString) {
 .compact-card {
   flex: 1;
   min-height: 550px;
+  padding-bottom: 32px;
 }
 
 .compact-card .form {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
+  display: block;
 }
 
-.compact-card .form .form-group:last-of-type {
+.compact-card .form .form-group {
   margin-bottom: 16px;
+}
+
+.compact-card .form .btn {
+  margin-top: 16px;
+  width: 100%;
 }
 
 .compact-card h2 {
