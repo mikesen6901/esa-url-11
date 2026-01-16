@@ -571,30 +571,18 @@ function formatDate(dateString) {
   align-items: stretch;
 }
 
+/* 右侧面板 */
 .side-panel {
   display: flex;
   flex-direction: column;
   gap: 20px;
-  height: 100%;
 }
 
+/* 紧凑卡片 - 完全重构 */
 .compact-card {
-  flex: 1;
   min-height: 550px;
-  padding-bottom: 32px;
-}
-
-.compact-card .form {
-  display: block;
-}
-
-.compact-card .form .form-group {
-  margin-bottom: 16px;
-}
-
-.compact-card .form .btn {
-  margin-top: 16px;
-  width: 100%;
+  display: flex;
+  flex-direction: column;
 }
 
 .compact-card h2 {
@@ -602,6 +590,30 @@ function formatDate(dateString) {
   font-size: 18px;
   font-weight: 600;
   margin-bottom: 20px;
+  flex-shrink: 0;
+}
+
+.compact-card .form {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.compact-card .form-group {
+  margin-bottom: 16px;
+  flex-shrink: 0;
+}
+
+.compact-card .form .btn {
+  margin-top: auto;
+  width: 100%;
+  flex-shrink: 0;
+}
+
+.compact-card .result,
+.compact-card .success-message,
+.compact-card .error-message {
+  flex-shrink: 0;
 }
 
 .glass-card {
