@@ -193,24 +193,25 @@ function formatDate(dateString) {
 
 .title {
   font-size: 36px;
-  font-weight: 800;
-  color: white;
-  text-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  font-weight: 700;
+  color: var(--text-primary);
 }
 
 .back-link {
-  padding: 10px 20px;
-  background: rgba(255, 255, 255, 0.2);
-  color: white;
+  padding: 8px 16px;
+  background: var(--card-bg);
+  color: var(--text-secondary);
   text-decoration: none;
-  border-radius: 10px;
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  transition: all 0.3s;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  transition: all 0.2s;
+  font-size: 14px;
 }
 
 .back-link:hover {
-  background: rgba(255, 255, 255, 0.3);
-  transform: translateY(-2px);
+  color: var(--primary);
+  border-color: var(--primary);
+  transform: translateY(-1px);
 }
 
 .login-card {
@@ -219,8 +220,9 @@ function formatDate(dateString) {
 }
 
 .login-card h2 {
-  color: white;
+  color: var(--text-primary);
   margin-bottom: 20px;
+  font-weight: 600;
 }
 
 .login-card form {
@@ -244,8 +246,9 @@ function formatDate(dateString) {
 }
 
 .stats-card h2 {
-  color: white;
+  color: var(--text-primary);
   margin-bottom: 20px;
+  font-weight: 600;
 }
 
 .stats-grid {
@@ -255,22 +258,29 @@ function formatDate(dateString) {
 }
 
 .stat-box {
-  background: rgba(255, 255, 255, 0.1);
+  background: #f8fafc;
   padding: 25px;
-  border-radius: 15px;
+  border-radius: 12px;
   text-align: center;
+  border: 1px solid var(--border);
 }
 
 .stat-number {
   font-size: 36px;
-  font-weight: 800;
-  color: white;
+  font-weight: 700;
+  color: var(--primary);
   margin-bottom: 5px;
 }
 
 .stat-label {
-  color: rgba(255, 255, 255, 0.8);
+  color: var(--text-secondary);
   font-size: 14px;
+}
+
+.links-card h2 {
+  color: var(--text-primary);
+  margin-bottom: 20px;
+  font-weight: 600;
 }
 
 .links-card h2 {
@@ -294,14 +304,15 @@ thead {
 th {
   padding: 15px;
   text-align: left;
-  color: white;
+  color: var(--text-primary);
   font-weight: 600;
+  background: #f8fafc;
 }
 
 td {
   padding: 15px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  color: rgba(255, 255, 255, 0.9);
+  border-bottom: 1px solid var(--border);
+  color: var(--text-primary);
 }
 
 .alias-cell a {
@@ -340,7 +351,7 @@ td {
 .empty-state {
   text-align: center;
   padding: 40px;
-  color: rgba(255, 255, 255, 0.6);
+  color: var(--text-secondary);
 }
 
 @media (max-width: 768px) {
