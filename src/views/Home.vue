@@ -98,6 +98,7 @@
               <div class="qr-section">
                 <h4>📱 二维码</h4>
                 <div class="qr-code" ref="qrCode"></div>
+                <button @click="downloadQRCode" class="btn btn-small" style="margin-top: 8px;">下载二维码</button>
               </div>
 
               <div class="stats">
@@ -311,6 +312,21 @@ function generateQRCode(url) {
   // Simple QR code generation using API - smaller size
   const qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=${encodeURIComponent(url)}`
   qrCode.value.innerHTML = `<img src="${qrApiUrl}" alt="QR Code" />`
+}
+
+function downloadQRCode() {
+  if (!result.value) return
+
+  const qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=400x400&data=${encodeURIComponent(result.value.shortUrl)}`
+  const link = document.createElement('a')
+  link.href = qrApiUrl
+  link.download = `qrcode-${result.value.alias}.png`
+  document.body.appendChild(link)
+  link.click()
+  document.body.removeChild(link)
+
+  toastMessage.value = '✅ 二维码已下载'
+  toastType.value = 'success'
 }
 
 async function queryStats() {
@@ -555,7 +571,15 @@ function formatDate(dateString) {
 
 .compact-card {
   flex: 1;
-  min-height: 280px;
+  min-height: 320px;
+  display: flex;
+  flex-direction: column;
+}
+
+.compact-card .form {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
 }
 
 .compact-card h2 {
