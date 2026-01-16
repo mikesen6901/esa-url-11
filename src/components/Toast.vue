@@ -38,15 +38,17 @@ watch(() => props.message, (newMessage) => {
 <style scoped>
 .toast {
   position: fixed;
-  top: 20px;
-  right: 20px;
-  padding: 12px 20px;
+  top: 80px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 12px 24px;
   border-radius: 8px;
   font-size: 14px;
   font-weight: 500;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   z-index: 9999;
   max-width: 400px;
+  text-align: center;
 }
 
 .toast.success {
@@ -70,19 +72,29 @@ watch(() => props.message, (newMessage) => {
 
 .toast-enter-from {
   opacity: 0;
-  transform: translateY(-20px);
+  transform: translateX(-50%) translateY(-20px);
 }
 
 .toast-leave-to {
   opacity: 0;
-  transform: translateY(-20px);
+  transform: translateX(-50%) translateY(-20px);
 }
 
 @media (max-width: 768px) {
   .toast {
+    top: 60px;
     left: 20px;
     right: 20px;
+    transform: none;
     max-width: none;
+  }
+
+  .toast-enter-from {
+    transform: translateY(-20px);
+  }
+
+  .toast-leave-to {
+    transform: translateY(-20px);
   }
 }
 </style>

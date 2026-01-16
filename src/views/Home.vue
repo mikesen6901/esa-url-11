@@ -222,6 +222,20 @@
           </div>
         </div>
       </div>
+
+      <!-- Footer -->
+      <footer class="footer">
+        <div class="footer-content">
+          <p class="footer-text">
+            ⚡ 本服务由 <a href="https://www.alibabacloud.com/product/dcdn/esa" target="_blank" rel="noopener">阿里云 ESA</a> 提供边缘计算、加速和安全防护
+          </p>
+          <p class="footer-links">
+            <a href="https://esa.console.aliyun.com/" target="_blank" rel="noopener">ESA 控制台</a>
+            <span class="separator">|</span>
+            <a href="https://help.aliyun.com/product/2588982.html" target="_blank" rel="noopener">产品文档</a>
+          </p>
+        </div>
+      </footer>
     </div>
   </div>
 </template>
@@ -294,8 +308,8 @@ async function createShortUrl() {
 function generateQRCode(url) {
   if (!qrCode.value) return
 
-  // Simple QR code generation using API
-  const qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(url)}`
+  // Simple QR code generation using API - smaller size
+  const qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=${encodeURIComponent(url)}`
   qrCode.value.innerHTML = `<img src="${qrApiUrl}" alt="QR Code" />`
 }
 
@@ -554,7 +568,19 @@ function formatDate(dateString) {
   color: var(--text-primary);
   font-size: 18px;
   font-weight: 600;
+  margin-bottom: 20px;
+}
+
+.compact-card .form-group {
   margin-bottom: 16px;
+}
+
+.compact-card .form-group:last-of-type {
+  margin-bottom: 20px;
+}
+
+.glass-card {
+  min-height: 200px;
 }
 
 .glass-card h2 {
@@ -672,46 +698,55 @@ function formatDate(dateString) {
   white-space: nowrap;
 }
 
+.result-grid {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 20px;
+  align-items: start;
+}
+
 .qr-section {
   text-align: center;
-  margin: 30px 0;
 }
 
 .qr-section h4 {
   color: var(--text-primary);
   font-weight: 600;
-  font-size: 16px;
-  margin-bottom: 16px;
+  font-size: 14px;
+  margin-bottom: 8px;
 }
 
 .qr-code {
   display: inline-block;
-  padding: 15px;
+  padding: 8px;
   background: white;
-  border-radius: 15px;
-  margin-bottom: 10px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
 }
 
 .qr-code img {
   display: block;
+  width: 120px;
+  height: 120px;
 }
 
 .stats {
   background: #f8fafc;
   border-radius: 8px;
-  padding: 16px;
+  padding: 12px;
   border: 1px solid var(--border);
 }
 
 .stats.compact {
-  padding: 12px;
+  padding: 10px;
 }
 
 .stat-item {
   display: flex;
   justify-content: space-between;
-  padding: 12px 0;
+  padding: 8px 0;
   border-bottom: 1px solid var(--border);
+  font-size: 13px;
 }
 
 .stat-item:last-child {
@@ -721,31 +756,32 @@ function formatDate(dateString) {
 .stat-label {
   color: var(--text-secondary);
   font-weight: 500;
-  font-size: 14px;
+  font-size: 13px;
 }
 
 .stat-value {
   color: var(--text-primary);
   word-break: break-all;
-  font-size: 14px;
+  font-size: 13px;
 }
 
 .stat-item.highlight {
   background: #fef3c7;
-  padding: 12px;
-  margin: 0 -16px;
-  border-radius: 8px;
+  padding: 10px;
+  margin: 0 -12px;
+  border-radius: 6px;
 }
 
 .warning-box {
-  margin-top: 16px;
-  padding: 12px 16px;
+  margin-top: 10px;
+  padding: 8px 10px;
   background: #fef3c7;
   border: 1px solid #fbbf24;
-  border-radius: 8px;
+  border-radius: 6px;
   color: #92400e;
-  font-size: 14px;
+  font-size: 12px;
   font-weight: 500;
+  line-height: 1.4;
 }
 
 .error-message {
@@ -814,6 +850,56 @@ function formatDate(dateString) {
   font-size: 13px;
 }
 
+/* Footer */
+.footer {
+  margin-top: 60px;
+  padding: 30px 0;
+  border-top: 1px solid var(--border);
+  text-align: center;
+}
+
+.footer-content {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.footer-text {
+  color: var(--text-secondary);
+  font-size: 14px;
+  line-height: 1.6;
+  margin-bottom: 12px;
+}
+
+.footer-text a {
+  color: var(--primary);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.footer-text a:hover {
+  text-decoration: underline;
+}
+
+.footer-links {
+  color: var(--text-secondary);
+  font-size: 13px;
+}
+
+.footer-links a {
+  color: var(--text-secondary);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.footer-links a:hover {
+  color: var(--primary);
+}
+
+.separator {
+  margin: 0 12px;
+  color: var(--border);
+}
+
 /* 响应式设计 */
 @media (max-width: 1024px) {
   .main-grid {
@@ -848,6 +934,11 @@ function formatDate(dateString) {
 
   .short-url-box {
     flex-direction: column;
+  }
+
+  .footer {
+    margin-top: 40px;
+    padding: 20px 0;
   }
 }
 </style>
