@@ -581,19 +581,16 @@ function formatDate(dateString) {
 .compact-card {
   flex: 1;
   min-height: 550px;
-  display: flex;
-  flex-direction: column;
 }
 
 .compact-card .form {
-  flex: 1;
   display: flex;
   flex-direction: column;
   gap: 16px;
 }
 
-.compact-card .form .btn {
-  margin-top: auto;
+.compact-card .form .form-group:last-of-type {
+  margin-bottom: 16px;
 }
 
 .compact-card h2 {
