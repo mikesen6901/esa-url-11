@@ -75,7 +75,7 @@ async function handleRequest(request) {
   if (path === '/api/shorten' && request.method === 'POST') {
     try {
       const body = await request.json();
-      const { longUrl, customAlias, expiryTime, accessPassword } = body;
+      const { longUrl, customAlias, expiryTime } = body;
 
       if (!longUrl || !longUrl.startsWith('http')) {
         return new Response(JSON.stringify({ error: '无效的URL' }), {
@@ -121,8 +121,7 @@ async function handleRequest(request) {
         clicks: 0,
         createdAt: new Date().toISOString(),
         expiresAt: expiryTime > 0 ? new Date(Date.now() + expiryTime * 1000).toISOString() : null,
-        editToken,
-        accessPassword: accessPassword || null
+        editToken
       };
 
       await edgeKv.put(`link:${alias}`, JSON.stringify(linkData));
@@ -232,45 +231,6 @@ async function handleRequest(request) {
     }
   }
 
-  // API: Verify access password
-  if (path.startsWith('/api/verify/') && request.method === 'POST') {
-    try {
-      const alias = path.split('/').pop();
-      const body = await request.json();
-      const { password } = body;
-
-      const linkData = await edgeKv.get(`link:${alias}`);
-
-      if (!linkData) {
-        return new Response(JSON.stringify({ error: '短链接不存在' }), {
-          status: 404,
-          headers: corsHeaders
-        });
-      }
-
-      const link = JSON.parse(linkData);
-
-      // Check if password matches
-      if (link.accessPassword && link.accessPassword === password) {
-        return new Response(JSON.stringify({
-          success: true,
-          longUrl: link.longUrl
-        }), {
-          headers: corsHeaders
-        });
-      } else {
-        return new Response(JSON.stringify({ error: '密码错误' }), {
-          status: 403,
-          headers: corsHeaders
-        });
-      }
-    } catch (error) {
-      return new Response(JSON.stringify({ error: '验证失败' }), {
-        status: 500,
-        headers: corsHeaders
-      });
-    }
-  }
 
   // API: Admin login
   if (path === '/api/admin/login' && request.method === 'POST') {
@@ -374,18 +334,6 @@ async function handleRequest(request) {
           return new Response('链接已过期', {
             status: 410,
             headers: { 'Content-Type': 'text/html; charset=utf-8' }
-          });
-        }
-
-        // Check if link has password protection
-        if (link.accessPassword) {
-          // If password protected, redirect to password verification page
-          return new Response(null, {
-            status: 302,
-            headers: {
-              'Location': `${url.origin}/#/verify/${alias}`,
-              'Cache-Control': 'no-cache'
-            }
           });
         }
 

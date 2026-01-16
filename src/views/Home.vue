@@ -43,16 +43,6 @@
             <small>过期后短链接将自动失效</small>
           </div>
 
-          <div class="form-group">
-            <label>访问密码 (可选)</label>
-            <input
-              v-model="accessPassword"
-              type="password"
-              placeholder="设置访问密码"
-            />
-            <small>设置后访问短链接需要输入密码</small>
-          </div>
-
           <button type="submit" class="btn btn-primary" :disabled="loading">
             {{ loading ? '生成中...' : '生成短链接' }}
           </button>
@@ -244,7 +234,6 @@ import Toast from '../components/Toast.vue'
 const longUrl = ref('')
 const customAlias = ref('')
 const expiryTime = ref('0')
-const accessPassword = ref('')
 const loading = ref(false)
 const result = ref(null)
 const error = ref('')
@@ -278,8 +267,7 @@ async function createShortUrl() {
       body: JSON.stringify({
         longUrl: longUrl.value,
         customAlias: customAlias.value || undefined,
-        expiryTime: parseInt(expiryTime.value),
-        accessPassword: accessPassword.value || undefined
+        expiryTime: parseInt(expiryTime.value)
       })
     })
 
