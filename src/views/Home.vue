@@ -1,0 +1,364 @@
+<template>
+  <div class="home">
+    <div class="container">
+      <header class="header">
+        <h1 class="title">⚡ ESA 短链接服务</h1>
+        <p class="subtitle">基于阿里云边缘计算的快速短链接生成服务</p>
+        <router-link to="/admin" class="admin-link">管理后台</router-link>
+      </header>
+
+      <div class="glass-card main-card">
+        <h2>🔗 创建短链接</h2>
+        <form @submit.prevent="createShortUrl" class="form">
+          <div class="form-group">
+            <label>原始链接</label>
+            <input
+              v-model="longUrl"
+              type="url"
+              placeholder="https://example.com/very/long/url"
+              required
+            />
+          </div>
+
+          <div class="form-group">
+            <label>自定义短码 (可选)</label>
+            <input
+              v-model="customAlias"
+              type="text"
+              placeholder="my-link"
+              pattern="[a-zA-Z0-9-_]+"
+            />
+            <small>只能包含字母、数字、横线和下划线</small>
+          </div>
+
+          <button type="submit" class="btn btn-primary" :disabled="loading">
+            {{ loading ? '生成中...' : '生成短链接' }}
+          </button>
+        </form>
+
+        <div v-if="result" class="result">
+          <h3>✅ 短链接已生成</h3>
+          <div class="short-url-box">
+            <input :value="result.shortUrl" readonly class="short-url-input" ref="urlInput" />
+            <button @click="copyUrl" class="btn btn-copy">{{ copied ? '已复制' : '复制' }}</button>
+          </div>
+
+          <div class="qr-section">
+            <h4>📱 二维码</h4>
+            <div class="qr-code" ref="qrCode"></div>
+            <p class="qr-hint">扫描二维码访问链接</p>
+          </div>
+
+          <div class="stats">
+            <div class="stat-item">
+              <span class="stat-label">原始链接:</span>
+              <span class="stat-value">{{ result.longUrl }}</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-label">短码:</span>
+              <span class="stat-value">{{ result.alias }}</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-label">点击次数:</span>
+              <span class="stat-value">0</span>
+            </div>
+          </div>
+        </div>
+
+        <div v-if="error" class="error-message">
+          ❌ {{ error }}
+        </div>
+      </div>
+
+      <div class="features">
+        <div class="feature-card glass-card">
+          <div class="feature-icon">⚡</div>
+          <h3>边缘加速</h3>
+          <p>基于阿里云ESA边缘节点，全球访问超快响应</p>
+        </div>
+        <div class="feature-card glass-card">
+          <div class="feature-icon">📊</div>
+          <h3>实时统计</h3>
+          <p>实时追踪点击数据，了解链接访问情况</p>
+        </div>
+        <div class="feature-card glass-card">
+          <div class="feature-icon">🔒</div>
+          <h3>安全可靠</h3>
+          <p>ESA边缘安全加速提供全方位保护</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script setup>
+import { ref } from 'vue'
+
+const longUrl = ref('')
+const customAlias = ref('')
+const loading = ref(false)
+const result = ref(null)
+const error = ref('')
+const copied = ref(false)
+const urlInput = ref(null)
+const qrCode = ref(null)
+
+async function createShortUrl() {
+  loading.value = true
+  error.value = ''
+  result.value = null
+
+  try {
+    const response = await fetch('/api/shorten', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        longUrl: longUrl.value,
+        customAlias: customAlias.value || undefined
+      })
+    })
+
+    const data = await response.json()
+
+    if (!response.ok) {
+      throw new Error(data.error || '生成失败')
+    }
+
+    result.value = data
+
+    // Generate QR code
+    setTimeout(() => {
+      generateQRCode(data.shortUrl)
+    }, 100)
+
+  } catch (e) {
+    error.value = e.message
+  } finally {
+    loading.value = false
+  }
+}
+
+function copyUrl() {
+  if (urlInput.value) {
+    urlInput.value.select()
+    document.execCommand('copy')
+    copied.value = true
+    setTimeout(() => {
+      copied.value = false
+    }, 2000)
+  }
+}
+
+function generateQRCode(url) {
+  if (!qrCode.value) return
+
+  // Simple QR code generation using API
+  const qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(url)}`
+  qrCode.value.innerHTML = `<img src="${qrApiUrl}" alt="QR Code" />`
+}
+</script>
+
+<style scoped>
+.home {
+  min-height: 100vh;
+  padding: 40px 20px;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 50px;
+  position: relative;
+}
+
+.title {
+  font-size: 48px;
+  font-weight: 800;
+  color: white;
+  margin-bottom: 10px;
+  text-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.subtitle {
+  font-size: 18px;
+  color: rgba(255, 255, 255, 0.9);
+  margin-bottom: 20px;
+}
+
+.admin-link {
+  display: inline-block;
+  padding: 10px 20px;
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  text-decoration: none;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  transition: all 0.3s;
+}
+
+.admin-link:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: translateY(-2px);
+}
+
+.main-card {
+  max-width: 700px;
+  margin: 0 auto 40px;
+}
+
+.main-card h2 {
+  color: white;
+  font-size: 28px;
+  margin-bottom: 30px;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  color: white;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.form-group small {
+  display: block;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 13px;
+  margin-top: 5px;
+}
+
+.result {
+  margin-top: 30px;
+  padding-top: 30px;
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.result h3 {
+  color: var(--success);
+  font-size: 24px;
+  margin-bottom: 20px;
+}
+
+.short-url-box {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 30px;
+}
+
+.short-url-input {
+  flex: 1;
+  font-weight: 600;
+  color: var(--primary);
+}
+
+.btn-copy {
+  background: var(--success);
+  color: white;
+  white-space: nowrap;
+}
+
+.qr-section {
+  text-align: center;
+  margin: 30px 0;
+}
+
+.qr-section h4 {
+  color: white;
+  margin-bottom: 15px;
+}
+
+.qr-code {
+  display: inline-block;
+  padding: 15px;
+  background: white;
+  border-radius: 15px;
+  margin-bottom: 10px;
+}
+
+.qr-code img {
+  display: block;
+}
+
+.qr-hint {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 14px;
+}
+
+.stats {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  padding: 20px;
+}
+
+.stat-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.stat-item:last-child {
+  border-bottom: none;
+}
+
+.stat-label {
+  color: rgba(255, 255, 255, 0.8);
+  font-weight: 600;
+}
+
+.stat-value {
+  color: white;
+  word-break: break-all;
+}
+
+.error-message {
+  margin-top: 20px;
+  padding: 15px;
+  background: rgba(239, 68, 68, 0.2);
+  border: 1px solid var(--danger);
+  border-radius: 10px;
+  color: white;
+}
+
+.features {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.feature-card {
+  text-align: center;
+  padding: 30px 20px;
+}
+
+.feature-icon {
+  font-size: 48px;
+  margin-bottom: 15px;
+}
+
+.feature-card h3 {
+  color: white;
+  font-size: 20px;
+  margin-bottom: 10px;
+}
+
+.feature-card p {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+@media (max-width: 768px) {
+  .title {
+    font-size: 36px;
+  }
+
+  .short-url-box {
+    flex-direction: column;
+  }
+}
+</style>

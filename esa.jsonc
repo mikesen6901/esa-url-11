@@ -1,0 +1,10 @@
+{
+  "name": "esa-url-shortener",
+  "entry": "./src/edge-function.js",
+  "installCommand": "npm install",
+  "buildCommand": "npm run build",
+  "assets": {
+    "directory": "./dist",
+    "notFoundStrategy": "singlePageApplication"
+  }
+}

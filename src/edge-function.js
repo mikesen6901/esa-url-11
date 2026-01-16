@@ -1,0 +1,247 @@
+// ESA Edge Function for URL Shortener
+// This function handles URL shortening, redirects, and admin operations
+
+const ADMIN_PASSWORD = 'admin123'; // Change this in production
+const KV_NAMESPACE = 'url_shortener';
+
+// Initialize Edge KV
+const edgeKv = new EdgeKV({ namespace: KV_NAMESPACE });
+
+// Generate random short code
+function generateShortCode(length = 6) {
+  const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  let result = '';
+  for (let i = 0; i < length; i++) {
+    result += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return result;
+}
+
+// CORS headers
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'GET, POST, DELETE, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+  'Content-Type': 'application/json'
+};
+
+async function handleRequest(request) {
+  const url = new URL(request.url);
+  const path = url.pathname;
+
+  // Handle CORS preflight
+  if (request.method === 'OPTIONS') {
+    return new Response(null, { headers: corsHeaders });
+  }
+
+  // Admin authentication check
+  function checkAuth(request) {
+    const authHeader = request.headers.get('Authorization');
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return false;
+    }
+    const token = authHeader.substring(7);
+    return token === ADMIN_PASSWORD;
+  }
+
+  // API: Create short URL
+  if (path === '/api/shorten' && request.method === 'POST') {
+    try {
+      const body = await request.json();
+      const { longUrl, customAlias } = body;
+
+      if (!longUrl || !longUrl.startsWith('http')) {
+        return new Response(JSON.stringify({ error: '无效的URL' }), {
+          status: 400,
+          headers: corsHeaders
+        });
+      }
+
+      // Generate or use custom alias
+      let alias = customAlias;
+      if (alias) {
+        // Check if custom alias already exists
+        const existing = await edgeKv.get(`link:${alias}`);
+        if (existing) {
+          return new Response(JSON.stringify({ error: '该短码已被使用' }), {
+            status: 400,
+            headers: corsHeaders
+          });
+        }
+      } else {
+        // Generate random alias
+        let attempts = 0;
+        do {
+          alias = generateShortCode();
+          const existing = await edgeKv.get(`link:${alias}`);
+          if (!existing) break;
+          attempts++;
+        } while (attempts < 10);
+
+        if (attempts >= 10) {
+          return new Response(JSON.stringify({ error: '生成短码失败，请重试' }), {
+            status: 500,
+            headers: corsHeaders
+          });
+        }
+      }
+
+      // Store link data
+      const linkData = {
+        alias,
+        longUrl,
+        clicks: 0,
+        createdAt: new Date().toISOString()
+      };
+
+      await edgeKv.put(`link:${alias}`, JSON.stringify(linkData));
+
+      // Add to links list
+      let linksList = await edgeKv.get('links_list');
+      linksList = linksList ? JSON.parse(linksList) : [];
+      linksList.push(alias);
+      await edgeKv.put('links_list', JSON.stringify(linksList));
+
+      const shortUrl = `${url.origin}/${alias}`;
+
+      return new Response(JSON.stringify({
+        success: true,
+        shortUrl,
+        alias,
+        longUrl
+      }), {
+        headers: corsHeaders
+      });
+
+    } catch (error) {
+      return new Response(JSON.stringify({ error: '服务器错误' }), {
+        status: 500,
+        headers: corsHeaders
+      });
+    }
+  }
+
+  // API: Admin login
+  if (path === '/api/admin/login' && request.method === 'POST') {
+    try {
+      const body = await request.json();
+      if (body.password === ADMIN_PASSWORD) {
+        return new Response(JSON.stringify({
+          success: true,
+          token: ADMIN_PASSWORD
+        }), {
+          headers: corsHeaders
+        });
+      } else {
+        return new Response(JSON.stringify({ error: '密码错误' }), {
+          status: 401,
+          headers: corsHeaders
+        });
+      }
+    } catch (error) {
+      return new Response(JSON.stringify({ error: '登录失败' }), {
+        status: 500,
+        headers: corsHeaders
+      });
+    }
+  }
+
+  // API: Get all links (admin only)
+  if (path === '/api/admin/links' && request.method === 'GET') {
+    if (!checkAuth(request)) {
+      return new Response(JSON.stringify({ error: '未授权' }), {
+        status: 401,
+        headers: corsHeaders
+      });
+    }
+
+    try {
+      let linksList = await edgeKv.get('links_list');
+      linksList = linksList ? JSON.parse(linksList) : [];
+
+      const links = [];
+      for (const alias of linksList) {
+        const linkData = await edgeKv.get(`link:${alias}`);
+        if (linkData) {
+          links.push(JSON.parse(linkData));
+        }
+      }
+
+      return new Response(JSON.stringify({ links }), {
+        headers: corsHeaders
+      });
+    } catch (error) {
+      return new Response(JSON.stringify({ error: '获取链接失败' }), {
+        status: 500,
+        headers: corsHeaders
+      });
+    }
+  }
+
+  // API: Delete link (admin only)
+  if (path.startsWith('/api/admin/links/') && request.method === 'DELETE') {
+    if (!checkAuth(request)) {
+      return new Response(JSON.stringify({ error: '未授权' }), {
+        status: 401,
+        headers: corsHeaders
+      });
+    }
+
+    try {
+      const alias = path.split('/').pop();
+      await edgeKv.delete(`link:${alias}`);
+
+      // Remove from links list
+      let linksList = await edgeKv.get('links_list');
+      linksList = linksList ? JSON.parse(linksList) : [];
+      linksList = linksList.filter(a => a !== alias);
+      await edgeKv.put('links_list', JSON.stringify(linksList));
+
+      return new Response(JSON.stringify({ success: true }), {
+        headers: corsHeaders
+      });
+    } catch (error) {
+      return new Response(JSON.stringify({ error: '删除失败' }), {
+        status: 500,
+        headers: corsHeaders
+      });
+    }
+  }
+
+  // Handle short URL redirects
+  if (path.length > 1 && !path.startsWith('/api') && !path.startsWith('/assets')) {
+    const alias = path.substring(1);
+
+    try {
+      const linkData = await edgeKv.get(`link:${alias}`);
+
+      if (linkData) {
+        const link = JSON.parse(linkData);
+
+        // Increment click count
+        link.clicks = (link.clicks || 0) + 1;
+        await edgeKv.put(`link:${alias}`, JSON.stringify(link));
+
+        // Redirect to long URL
+        return new Response(null, {
+          status: 302,
+          headers: {
+            'Location': link.longUrl,
+            'Cache-Control': 'no-cache'
+          }
+        });
+      }
+    } catch (error) {
+      console.error('Redirect error:', error);
+    }
+  }
+
+  // Return 404 for unknown routes
+  return new Response('Not Found', { status: 404 });
+}
+
+export default {
+  async fetch(request) {
+    return handleRequest(request);
+  }
+};
