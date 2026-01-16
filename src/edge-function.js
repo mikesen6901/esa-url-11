@@ -253,9 +253,9 @@ async function handleRequest(request) {
     }
   }
 
-  // Don't return 404 - let ESA's SPA fallback handle unmatched routes
-  // When notFoundStrategy: "singlePageApplication" is configured,
-  // ESA will serve index.html for navigation requests
+  // For unmatched routes, return null response to let ESA's SPA fallback handle it
+  // This allows notFoundStrategy: "singlePageApplication" to serve index.html
+  return fetch(request);
 }
 
 export default {
