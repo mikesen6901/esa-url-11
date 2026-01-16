@@ -29,11 +29,20 @@ async function handleRequest(request) {
   const url = new URL(request.url);
   const path = url.pathname;
 
+  // 调试日志：记录所有请求
+  console.log('=== Edge Function Request ===');
+  console.log('Path:', path);
+  console.log('Method:', request.method);
+  console.log('Sec-Fetch-Mode:', request.headers.get('Sec-Fetch-Mode'));
+  console.log('User-Agent:', request.headers.get('User-Agent'));
+
   // 检查是否是导航请求（浏览器地址栏访问或刷新）
   const isNavigationRequest = request.headers.get('Sec-Fetch-Mode') === 'navigate';
+  console.log('Is Navigation Request:', isNavigationRequest);
 
   // 如果是导航请求且不是 API 路径，让静态资源托管处理（SPA fallback）
   if (isNavigationRequest && !path.startsWith('/api')) {
+    console.log('✅ Returning 404 for SPA fallback');
     return new Response(null, { status: 404 }); // 返回 404 让 ESA 的 SPA fallback 接管
   }
 
