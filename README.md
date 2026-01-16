@@ -2,7 +2,7 @@
 
 <div align="center">
 
-一个基于阿里云ESA边缘计算的现代化短链接服务，提供快速、安全、可靠的URL缩短和分析功能
+一个基于阿里云ESA边缘计算的现代化短链接服务，提供快速、安全、可靠的URL缩短功能
 
 [🖥️ 在线演示](#) | [📖 文档](#使用说明)
 
@@ -28,18 +28,17 @@
 
 - ✅ **即用型服务**：部署后立即可用，无需任何配置
 - ✅ **自定义短码**：支持自定义短链接别名，便于记忆和分享
-- ✅ **实时分析**：实时追踪点击数据，了解链接访问情况
 - ✅ **QR码生成**：自动生成二维码，方便移动端分享
-- ✅ **管理后台**：完整的管理界面，可视化管理所有短链接
+- ✅ **一键复制**：快速复制短链接到剪贴板
 - ✅ **全球加速**：基于ESA边缘节点，全球访问超快响应
 
 ### ✨ 创意卓越 (Creative Excellence)
 
-- 🎨 **现代化UI设计**：采用毛玻璃效果(Glassmorphism)、渐变色背景
+- 🎨 **现代化UI设计**：清爽简洁的界面设计，蓝色系配色
 - 🌊 **流畅动画**：卡片悬停动画、按钮交互动画，提升用户体验
 - 📱 **响应式设计**：完美适配桌面、平板、手机等各种设备
 - 🎯 **简洁直观**：一键生成短链接，操作简单明了
-- 📊 **可视化数据**：统计数据以卡片形式展示，一目了然
+- 💬 **Toast通知**：优雅的通知提示，替代浏览器原生弹窗
 
 ### 🔥 技术探索 (Technical Exploration)
 
@@ -51,9 +50,8 @@
    - 全球 CDN 加速，访问速度快
 
 #### 2. **ESA 边缘函数 (Edge Functions)** ⭐
-   - 实现短链接生成、重定向、管理等核心功能
+   - 实现短链接生成、重定向等核心功能
    - 边缘计算，低延迟响应（<50ms）
-   - 支持用户认证和权限验证
    - 代码位置：[src/edge-function.js](src/edge-function.js)
 
 #### 3. **ESA Edge KV 存储** ⭐
@@ -76,20 +74,12 @@
 
 ## ✨ 核心功能
 
-### 前台功能
 - 🔗 **快速生成短链接** - 输入长URL，一键生成短链接
 - 🎯 **自定义短码** - 支持自定义短链接别名
 - 📱 **二维码生成** - 自动生成二维码，方便分享
-- 📊 **实时统计** - 显示点击次数等统计信息
-- 📋 **一键复制** - 快速复制短链接到剪贴板
-
-### 后台管理功能 ⭐
-- 🔐 **管理员登录** - 密码验证保护
-- 📊 **统计概览** - 总链接数、总点击数、今日点击数
-- 📋 **链接管理** - 查看所有短链接及其详细信息
-- 🗑️ **删除链接** - 删除不需要的短链接
-- 💾 **数据持久化** - 使用 ESA Edge KV 存储
-- 🌍 **全球同步** - 数据 20 秒内全球生效
+- 📋 **一键复制** - 快速复制短链接到剪贴板，带Toast提示
+- 📊 **点击统计** - 自动记录短链接点击次数
+- 🌍 **全球加速** - 基于ESA边缘节点，全球访问超快
 
 ---
 
@@ -99,8 +89,8 @@
 
 1. **克隆项目**
    ```bash
-   git clone https://github.com/你的用户名/esa-url-shortener.git
-   cd esa-url-shortener
+   git clone https://github.com/你的用户名/esa-url-11.git
+   cd esa-url-11
    ```
 
 2. **安装依赖**
@@ -137,7 +127,7 @@
    git init
    git add .
    git commit -m "Initial commit"
-   git remote add origin https://github.com/你的用户名/esa-url-shortener.git
+   git remote add origin https://github.com/你的用户名/esa-url-11.git
    git push -u origin main
    ```
 
@@ -150,8 +140,7 @@
 
 4. **访问你的短链接服务**
    - 部署完成后，ESA 会提供访问 URL
-   - 访问 `/admin` 路径进入后台管理
-   - 默认密码：`admin123`（可在边缘函数中修改）
+   - 开始使用短链接服务
 
 ---
 
@@ -160,7 +149,7 @@
 - **前端框架**: Vue 3
 - **路由管理**: Vue Router 4
 - **构建工具**: Vite
-- **样式**: CSS3 (Glassmorphism)
+- **样式**: CSS3 (现代化设计)
 - **边缘计算**: 阿里云 ESA Edge Functions ⭐
 - **数据存储**: 阿里云 ESA Edge KV ⭐
 - **部署平台**: 阿里云 ESA Pages
@@ -171,7 +160,7 @@
 ## 📁 项目结构
 
 ```
-esa-url-shortener/
+esa-url-11/
 ├── index.html              # 入口 HTML
 ├── package.json            # 项目配置
 ├── vite.config.js          # Vite 配置
@@ -183,9 +172,10 @@ esa-url-shortener/
     ├── App.vue            # 根组件
     ├── style.css          # 全局样式
     ├── edge-function.js   # ⭐ ESA 边缘函数（核心API）
+    ├── components/
+    │   └── Toast.vue      # Toast 通知组件
     └── views/
-        ├── Home.vue       # 首页（短链接生成）
-        └── Admin.vue      # ⭐ 后台管理
+        └── Home.vue       # 首页（短链接生成）
 ```
 
 ---
@@ -207,13 +197,13 @@ esa-url-shortener/
 - Vue 3 Composition API
 - Vite 快速构建
 - 热模块替换（HMR）
-- Glassmorphism UI 设计
+- 清爽简洁的 UI 设计
 
-### 4. 安全可靠
-- 管理员密码验证
-- API 权限控制
-- 数据持久化存储
-- 全球 CDN 加速和保护
+### 4. 用户体验优化
+- Toast 通知替代原生弹窗
+- 现代 Clipboard API 支持
+- 优雅的加载状态
+- 流畅的动画效果
 
 ---
 
@@ -221,10 +211,9 @@ esa-url-shortener/
 
 ### 边缘函数配置
 
-在 [src/edge-function.js](src/edge-function.js) 中修改管理员密码：
+在 [src/edge-function.js](src/edge-function.js) 中修改 KV 命名空间：
 
 ```javascript
-const ADMIN_PASSWORD = 'admin123'; // 修改为你的密码
 const KV_NAMESPACE = 'url_shortener';   // KV 命名空间名称
 ```
 
@@ -234,7 +223,7 @@ const KV_NAMESPACE = 'url_shortener';   // KV 命名空间名称
 
 ```jsonc
 {
-  "name": "esa-url-shortener",           // 项目名称
+  "name": "esa-url-11",                  // 项目名称
   "entry": "./src/edge-function.js",     // ⭐ 边缘函数入口
   "installCommand": "npm install",       // 安装命令
   "buildCommand": "npm run build",       // 构建命令
@@ -257,13 +246,6 @@ const KV_NAMESPACE = 'url_shortener';   // KV 命名空间名称
 4. 点击"生成短链接"
 5. 复制生成的短链接或扫描二维码
 
-### 管理短链接
-
-1. 访问 `/admin` 路径
-2. 输入管理员密码登录（默认：admin123）
-3. 查看统计数据和所有短链接
-4. 可以删除不需要的短链接
-
 ---
 
 ## 🌟 项目特色
@@ -271,7 +253,7 @@ const KV_NAMESPACE = 'url_shortener';   // KV 命名空间名称
 1. **边缘计算优势**：利用ESA边缘节点，全球访问速度快
 2. **实用性强**：部署即用，适合个人和团队使用
 3. **技术完整**：完整使用ESA生态（Pages + Functions + KV）
-4. **界面美观**：现代化Glassmorphism设计
+4. **界面美观**：现代化清爽设计
 5. **开源免费**：MIT协议，可自由使用和修改
 
 ---

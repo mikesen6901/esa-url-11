@@ -5,7 +5,6 @@
       <header class="header">
         <h1 class="title">⚡ ESA 短链接服务</h1>
         <p class="subtitle">基于阿里云边缘计算的快速短链接生成服务</p>
-        <router-link to="/admin" class="admin-link">管理后台</router-link>
       </header>
 
       <div class="glass-card main-card">
