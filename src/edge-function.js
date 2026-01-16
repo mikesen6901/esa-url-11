@@ -65,7 +65,7 @@ async function handleRequest(request) {
   if (path === '/api/shorten' && request.method === 'POST') {
     try {
       const body = await request.json();
-      const { longUrl, customAlias } = body;
+      const { longUrl, customAlias, expiryTime } = body;
 
       if (!longUrl || !longUrl.startsWith('http')) {
         return new Response(JSON.stringify({ error: '无效的URL' }), {
@@ -108,7 +108,8 @@ async function handleRequest(request) {
         alias,
         longUrl,
         clicks: 0,
-        createdAt: new Date().toISOString()
+        createdAt: new Date().toISOString(),
+        expiresAt: expiryTime > 0 ? new Date(Date.now() + expiryTime * 1000).toISOString() : null
       };
 
       await edgeKv.put(`link:${alias}`, JSON.stringify(linkData));
@@ -132,6 +133,32 @@ async function handleRequest(request) {
 
     } catch (error) {
       return new Response(JSON.stringify({ error: '服务器错误' }), {
+        status: 500,
+        headers: corsHeaders
+      });
+    }
+  }
+
+  // API: Get link statistics
+  if (path.startsWith('/api/stats/') && request.method === 'GET') {
+    try {
+      const alias = path.split('/').pop();
+      const linkData = await edgeKv.get(`link:${alias}`);
+
+      if (!linkData) {
+        return new Response(JSON.stringify({ error: '短链接不存在' }), {
+          status: 404,
+          headers: corsHeaders
+        });
+      }
+
+      const link = JSON.parse(linkData);
+
+      return new Response(JSON.stringify(link), {
+        headers: corsHeaders
+      });
+    } catch (error) {
+      return new Response(JSON.stringify({ error: '查询失败' }), {
         status: 500,
         headers: corsHeaders
       });
@@ -234,6 +261,14 @@ async function handleRequest(request) {
 
       if (linkData) {
         const link = JSON.parse(linkData);
+
+        // Check if link has expired
+        if (link.expiresAt && new Date(link.expiresAt) < new Date()) {
+          return new Response('链接已过期', {
+            status: 410,
+            headers: { 'Content-Type': 'text/html; charset=utf-8' }
+          });
+        }
 
         // Increment click count
         link.clicks = (link.clicks || 0) + 1;

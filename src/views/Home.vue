@@ -31,6 +31,18 @@
             <small>只能包含字母、数字、横线和下划线</small>
           </div>
 
+          <div class="form-group">
+            <label>过期时间</label>
+            <select v-model="expiryTime" class="expiry-select">
+              <option value="0">永久有效</option>
+              <option value="3600">1小时后过期</option>
+              <option value="86400">1天后过期</option>
+              <option value="604800">7天后过期</option>
+              <option value="2592000">30天后过期</option>
+            </select>
+            <small>过期后短链接将自动失效</small>
+          </div>
+
           <button type="submit" class="btn btn-primary" :disabled="loading">
             {{ loading ? '生成中...' : '生成短链接' }}
           </button>
@@ -70,6 +82,56 @@
         </div>
       </div>
 
+      <div class="glass-card main-card">
+        <h2>📊 查询短链接统计</h2>
+        <form @submit.prevent="queryStats" class="form">
+          <div class="form-group">
+            <label>短链接或短码</label>
+            <input
+              v-model="queryAlias"
+              type="text"
+              placeholder="输入短码，例如: abc123"
+              required
+            />
+            <small>输入短码或完整短链接查看统计信息</small>
+          </div>
+
+          <button type="submit" class="btn btn-primary" :disabled="queryLoading">
+            {{ queryLoading ? '查询中...' : '查询统计' }}
+          </button>
+        </form>
+
+        <div v-if="statsResult" class="result">
+          <h3>📈 统计信息</h3>
+          <div class="stats">
+            <div class="stat-item">
+              <span class="stat-label">短链接:</span>
+              <span class="stat-value">{{ statsResult.shortUrl }}</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-label">原始链接:</span>
+              <span class="stat-value">{{ statsResult.longUrl }}</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-label">点击次数:</span>
+              <span class="stat-value">{{ statsResult.clicks }}</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-label">创建时间:</span>
+              <span class="stat-value">{{ formatDate(statsResult.createdAt) }}</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-label">过期时间:</span>
+              <span class="stat-value">{{ statsResult.expiresAt ? formatDate(statsResult.expiresAt) : '永久有效' }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div v-if="queryError" class="error-message">
+          ❌ {{ queryError }}
+        </div>
+      </div>
+
       <div class="features">
         <div class="feature-card glass-card">
           <div class="feature-icon">⚡</div>
@@ -97,6 +159,7 @@ import Toast from '../components/Toast.vue'
 
 const longUrl = ref('')
 const customAlias = ref('')
+const expiryTime = ref('0')
 const loading = ref(false)
 const result = ref(null)
 const error = ref('')
@@ -105,6 +168,11 @@ const urlInput = ref(null)
 const qrCode = ref(null)
 const toastMessage = ref('')
 const toastType = ref('success')
+
+const queryAlias = ref('')
+const queryLoading = ref(false)
+const statsResult = ref(null)
+const queryError = ref('')
 
 async function createShortUrl() {
   loading.value = true
@@ -117,7 +185,8 @@ async function createShortUrl() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         longUrl: longUrl.value,
-        customAlias: customAlias.value || undefined
+        customAlias: customAlias.value || undefined,
+        expiryTime: parseInt(expiryTime.value)
       })
     })
 
@@ -187,6 +256,48 @@ function generateQRCode(url) {
   // Simple QR code generation using API
   const qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(url)}`
   qrCode.value.innerHTML = `<img src="${qrApiUrl}" alt="QR Code" />`
+}
+
+async function queryStats() {
+  queryLoading.value = true
+  queryError.value = ''
+  statsResult.value = null
+
+  try {
+    // Extract alias from full URL or use as-is
+    let alias = queryAlias.value.trim()
+    if (alias.includes('/')) {
+      alias = alias.split('/').pop()
+    }
+
+    const response = await fetch(`/api/stats/${alias}`)
+    const data = await response.json()
+
+    if (!response.ok) {
+      queryError.value = data.error || '查询失败'
+      return
+    }
+
+    statsResult.value = {
+      ...data,
+      shortUrl: `${window.location.origin}/${data.alias}`
+    }
+  } catch (e) {
+    queryError.value = '查询失败，请检查网络连接'
+  } finally {
+    queryLoading.value = false
+  }
+}
+
+function formatDate(dateString) {
+  const date = new Date(dateString)
+  return date.toLocaleString('zh-CN', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit'
+  })
 }
 </script>
 
@@ -263,6 +374,24 @@ function generateQRCode(url) {
   color: var(--text-secondary);
   font-size: 13px;
   margin-top: 6px;
+}
+
+.expiry-select {
+  width: 100%;
+  padding: 12px 16px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--card-bg);
+  color: var(--text-primary);
+  font-size: 15px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.expiry-select:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
 
 .result {
