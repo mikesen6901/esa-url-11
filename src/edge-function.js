@@ -29,6 +29,14 @@ async function handleRequest(request) {
   const url = new URL(request.url);
   const path = url.pathname;
 
+  // 检查是否是导航请求（浏览器地址栏访问或刷新）
+  const isNavigationRequest = request.headers.get('Sec-Fetch-Mode') === 'navigate';
+
+  // 如果是导航请求且不是 API 路径，让静态资源托管处理（SPA fallback）
+  if (isNavigationRequest && !path.startsWith('/api')) {
+    return new Response(null, { status: 404 }); // 返回 404 让 ESA 的 SPA fallback 接管
+  }
+
   // Handle CORS preflight
   if (request.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -208,8 +216,8 @@ async function handleRequest(request) {
     }
   }
 
-  // Handle short URL redirects
-  if (path.length > 1 && !path.startsWith('/api') && !path.startsWith('/assets') && path !== '/admin') {
+  // Handle short URL redirects (only for non-navigation requests or short codes)
+  if (path.length > 1 && !path.startsWith('/api') && !path.startsWith('/assets')) {
     const alias = path.substring(1);
 
     try {
