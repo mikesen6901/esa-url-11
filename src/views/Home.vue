@@ -602,6 +602,7 @@ function formatDate(dateString) {
 
 .glass-card {
   min-height: 200px;
+  overflow: hidden;
 }
 
 .glass-card h2 {
