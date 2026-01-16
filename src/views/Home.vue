@@ -555,7 +555,7 @@ function formatDate(dateString) {
 
 .compact-card {
   flex: 1;
-  min-height: 0;
+  min-height: 280px;
 }
 
 .compact-card h2 {
