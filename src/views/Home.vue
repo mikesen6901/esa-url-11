@@ -219,7 +219,6 @@
                 <span v-if="link.expiresAt"> | 过期: {{ formatDate(link.expiresAt) }}</span>
               </div>
             </div>
-            <button @click="copyToClipboard(link.shortUrl)" class="btn btn-small">复制</button>
           </div>
         </div>
       </div>
@@ -233,7 +232,7 @@
           <p class="footer-links">
             <a href="https://esa.console.aliyun.com/" target="_blank" rel="noopener">ESA 控制台</a>
             <span class="separator">|</span>
-            <a href="https://help.aliyun.com/product/2588982.html" target="_blank" rel="noopener">产品文档</a>
+            <a href="https://github.com/mikesen6901/esa-url-11" target="_blank" rel="noopener">GitHub</a>
           </p>
         </div>
       </footer>
@@ -311,13 +310,13 @@ function generateQRCode(url) {
 
   const qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=${encodeURIComponent(url)}`
 
-  qrCode.value.style.opacity = '0'
+  qrCode.value.style.display = 'none'
 
   const img = new Image()
   img.onload = () => {
     qrCode.value.innerHTML = ''
     qrCode.value.appendChild(img)
-    qrCode.value.style.opacity = '1'
+    qrCode.value.style.display = 'flex'
   }
   img.src = qrApiUrl
   img.alt = 'QR Code'
@@ -452,8 +451,11 @@ const recentLinks = ref(getRecentLinks())
 function copyToClipboard(text) {
   if (navigator.clipboard && navigator.clipboard.writeText) {
     navigator.clipboard.writeText(text).then(() => {
-      toastMessage.value = '✅ 已复制到剪贴板'
-      toastType.value = 'success'
+      toastMessage.value = ''
+      setTimeout(() => {
+        toastMessage.value = '✅ 已复制到剪贴板'
+        toastType.value = 'success'
+      }, 10)
     }).catch(() => {
       // Fallback to execCommand if clipboard API fails
       fallbackCopyText(text)
@@ -475,11 +477,17 @@ function fallbackCopyText(text) {
     document.execCommand('copy')
     document.body.removeChild(textarea)
 
-    toastMessage.value = '✅ 已复制到剪贴板'
-    toastType.value = 'success'
+    toastMessage.value = ''
+    setTimeout(() => {
+      toastMessage.value = '✅ 已复制到剪贴板'
+      toastType.value = 'success'
+    }, 10)
   } catch (e) {
-    toastMessage.value = '❌ 复制失败，请手动复制'
-    toastType.value = 'error'
+    toastMessage.value = ''
+    setTimeout(() => {
+      toastMessage.value = '❌ 复制失败，请手动复制'
+      toastType.value = 'error'
+    }, 10)
   }
 }
 
