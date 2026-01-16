@@ -74,6 +74,13 @@
               <span class="stat-label">点击次数:</span>
               <span class="stat-value">0</span>
             </div>
+            <div class="stat-item highlight">
+              <span class="stat-label">🔑 管理密钥:</span>
+              <span class="stat-value">{{ result.editToken }}</span>
+            </div>
+          </div>
+          <div class="warning-box">
+            ⚠️ 请妥善保管管理密钥，使用它可以修改短链接的目标URL
           </div>
         </div>
 
@@ -132,6 +139,54 @@
         </div>
       </div>
 
+      <div class="glass-card main-card">
+        <h2>✏️ 编辑短链接</h2>
+        <form @submit.prevent="updateShortUrl" class="form">
+          <div class="form-group">
+            <label>短码</label>
+            <input
+              v-model="editAlias"
+              type="text"
+              placeholder="输入要编辑的短码"
+              required
+            />
+          </div>
+
+          <div class="form-group">
+            <label>新的目标URL</label>
+            <input
+              v-model="editLongUrl"
+              type="url"
+              placeholder="https://example.com/new-url"
+              required
+            />
+          </div>
+
+          <div class="form-group">
+            <label>管理密钥</label>
+            <input
+              v-model="editToken"
+              type="text"
+              placeholder="输入管理密钥"
+              required
+            />
+            <small>创建短链接时获得的管理密钥</small>
+          </div>
+
+          <button type="submit" class="btn btn-primary" :disabled="editLoading">
+            {{ editLoading ? '更新中...' : '更新短链接' }}
+          </button>
+        </form>
+
+        <div v-if="editSuccess" class="success-message">
+          ✅ 短链接已成功更新！
+        </div>
+
+        <div v-if="editError" class="error-message">
+          ❌ {{ editError }}
+        </div>
+      </div>
+
       <div class="features">
         <div class="feature-card glass-card">
           <div class="feature-icon">⚡</div>
@@ -173,6 +228,13 @@ const queryAlias = ref('')
 const queryLoading = ref(false)
 const statsResult = ref(null)
 const queryError = ref('')
+
+const editAlias = ref('')
+const editLongUrl = ref('')
+const editToken = ref('')
+const editLoading = ref(false)
+const editSuccess = ref(false)
+const editError = ref('')
 
 async function createShortUrl() {
   loading.value = true
@@ -286,6 +348,47 @@ async function queryStats() {
     queryError.value = '查询失败，请检查网络连接'
   } finally {
     queryLoading.value = false
+  }
+}
+
+async function updateShortUrl() {
+  editLoading.value = true
+  editError.value = ''
+  editSuccess.value = false
+
+  try {
+    const response = await fetch(`/api/update/${editAlias.value}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        longUrl: editLongUrl.value,
+        editToken: editToken.value
+      })
+    })
+
+    const data = await response.json()
+
+    if (!response.ok) {
+      editError.value = data.error || '更新失败'
+      return
+    }
+
+    editSuccess.value = true
+    toastMessage.value = '✅ 短链接已成功更新'
+    toastType.value = 'success'
+
+    // Clear form after 2 seconds
+    setTimeout(() => {
+      editSuccess.value = false
+      editAlias.value = ''
+      editLongUrl.value = ''
+      editToken.value = ''
+      toastMessage.value = ''
+    }, 2000)
+  } catch (e) {
+    editError.value = '更新失败，请检查网络连接'
+  } finally {
+    editLoading.value = false
   }
 }
 
@@ -484,6 +587,24 @@ function formatDate(dateString) {
   font-size: 14px;
 }
 
+.stat-item.highlight {
+  background: #fef3c7;
+  padding: 12px;
+  margin: 0 -16px;
+  border-radius: 8px;
+}
+
+.warning-box {
+  margin-top: 16px;
+  padding: 12px 16px;
+  background: #fef3c7;
+  border: 1px solid #fbbf24;
+  border-radius: 8px;
+  color: #92400e;
+  font-size: 14px;
+  font-weight: 500;
+}
+
 .error-message {
   margin-top: 16px;
   padding: 12px 16px;
@@ -492,6 +613,17 @@ function formatDate(dateString) {
   border-radius: 8px;
   color: #991b1b;
   font-size: 14px;
+}
+
+.success-message {
+  margin-top: 16px;
+  padding: 12px 16px;
+  background: #f0fdf4;
+  border: 1px solid #86efac;
+  border-radius: 8px;
+  color: #166534;
+  font-size: 14px;
+  font-weight: 500;
 }
 
 .features {

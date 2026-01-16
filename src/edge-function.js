@@ -17,6 +17,16 @@ function generateShortCode(length = 6) {
   return result;
 }
 
+// Generate random edit token for link management
+function generateEditToken(length = 16) {
+  const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  let result = '';
+  for (let i = 0; i < length; i++) {
+    result += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return result;
+}
+
 // CORS headers
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -104,12 +114,14 @@ async function handleRequest(request) {
       }
 
       // Store link data
+      const editToken = generateEditToken();
       const linkData = {
         alias,
         longUrl,
         clicks: 0,
         createdAt: new Date().toISOString(),
-        expiresAt: expiryTime > 0 ? new Date(Date.now() + expiryTime * 1000).toISOString() : null
+        expiresAt: expiryTime > 0 ? new Date(Date.now() + expiryTime * 1000).toISOString() : null,
+        editToken
       };
 
       await edgeKv.put(`link:${alias}`, JSON.stringify(linkData));
@@ -126,7 +138,8 @@ async function handleRequest(request) {
         success: true,
         shortUrl,
         alias,
-        longUrl
+        longUrl,
+        editToken
       }), {
         headers: corsHeaders
       });
@@ -159,6 +172,59 @@ async function handleRequest(request) {
       });
     } catch (error) {
       return new Response(JSON.stringify({ error: '查询失败' }), {
+        status: 500,
+        headers: corsHeaders
+      });
+    }
+  }
+
+  // API: Update short URL
+  if (path.startsWith('/api/update/') && request.method === 'PUT') {
+    try {
+      const alias = path.split('/').pop();
+      const body = await request.json();
+      const { longUrl, editToken } = body;
+
+      if (!longUrl || !longUrl.startsWith('http')) {
+        return new Response(JSON.stringify({ error: '无效的URL' }), {
+          status: 400,
+          headers: corsHeaders
+        });
+      }
+
+      const linkData = await edgeKv.get(`link:${alias}`);
+
+      if (!linkData) {
+        return new Response(JSON.stringify({ error: '短链接不存在' }), {
+          status: 404,
+          headers: corsHeaders
+        });
+      }
+
+      const link = JSON.parse(linkData);
+
+      // Verify edit token
+      if (link.editToken !== editToken) {
+        return new Response(JSON.stringify({ error: '管理密钥错误' }), {
+          status: 403,
+          headers: corsHeaders
+        });
+      }
+
+      // Update the long URL
+      link.longUrl = longUrl;
+      link.updatedAt = new Date().toISOString();
+
+      await edgeKv.put(`link:${alias}`, JSON.stringify(link));
+
+      return new Response(JSON.stringify({
+        success: true,
+        message: '短链接已更新'
+      }), {
+        headers: corsHeaders
+      });
+    } catch (error) {
+      return new Response(JSON.stringify({ error: '更新失败' }), {
         status: 500,
         headers: corsHeaders
       });
