@@ -106,8 +106,8 @@
                   <span class="stat-label">短码:</span>
                   <span class="stat-value">{{ result.alias }}</span>
                 </div>
-                <div class="stat-item highlight">
-                  <span class="stat-label">🔑 管理密钥:</span>
+                <div class="stat-item">
+                  <span class="stat-label">管理密钥:</span>
                   <span class="stat-value">{{ result.editToken }}</span>
                 </div>
                 <div class="warning-box">
@@ -571,7 +571,7 @@ function formatDate(dateString) {
 
 .compact-card {
   flex: 1;
-  min-height: 320px;
+  min-height: 550px;
   display: flex;
   flex-direction: column;
 }
@@ -580,6 +580,7 @@ function formatDate(dateString) {
   flex: 1;
   display: flex;
   flex-direction: column;
+  gap: 16px;
 }
 
 .compact-card .form .btn {
@@ -590,14 +591,6 @@ function formatDate(dateString) {
   color: var(--text-primary);
   font-size: 18px;
   font-weight: 600;
-  margin-bottom: 20px;
-}
-
-.compact-card .form-group {
-  margin-bottom: 16px;
-}
-
-.compact-card .form-group:last-of-type {
   margin-bottom: 20px;
 }
 
@@ -744,6 +737,10 @@ function formatDate(dateString) {
   background: white;
   border-radius: 8px;
   border: 1px solid var(--border);
+  min-height: 136px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .qr-code img {
