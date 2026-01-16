@@ -429,9 +429,6 @@ function copyToClipboard(text) {
     navigator.clipboard.writeText(text).then(() => {
       toastMessage.value = '✅ 已复制到剪贴板'
       toastType.value = 'success'
-      setTimeout(() => {
-        toastMessage.value = ''
-      }, 2000)
     }).catch(() => {
       // Fallback to execCommand if clipboard API fails
       fallbackCopyText(text)
@@ -455,15 +452,9 @@ function fallbackCopyText(text) {
 
     toastMessage.value = '✅ 已复制到剪贴板'
     toastType.value = 'success'
-    setTimeout(() => {
-      toastMessage.value = ''
-    }, 2000)
   } catch (e) {
     toastMessage.value = '❌ 复制失败，请手动复制'
     toastType.value = 'error'
-    setTimeout(() => {
-      toastMessage.value = ''
-    }, 2000)
   }
 }
 
