@@ -225,8 +225,8 @@ async function handleRequest(request) {
     }
   }
 
-  // Handle short URL redirects (only for non-navigation requests or short codes)
-  if (path.length > 1 && !path.startsWith('/api') && !path.startsWith('/assets')) {
+  // Handle short URL redirects (exclude /admin for SPA routing)
+  if (path.length > 1 && !path.startsWith('/api') && !path.startsWith('/assets') && path !== '/admin') {
     const alias = path.substring(1);
 
     try {
